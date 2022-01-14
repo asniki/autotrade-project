@@ -357,14 +357,6 @@ public class ConnectorWrapper {
 //        ConnectionProfile connectionProfile = utils.getDemoConnectionProfile();
 
         Connect connect = Connect.builder()
-//                .login("TCNN9987")  // до 20.01.2022
-//                .password("NyN3L5")
-//                .host("tr1-demo5.finam.ru")
-//                .port("3939")
-//                .login("FZTC13760A")
-//                .password("mBdG5y6J")
-//                .host("tr1.finam.ru")
-//                .port("3900")
                 .login(connectionProfile.getLogin())
                 .password(connectionProfile.getPassword())
                 .host(connectionProfile.getHost())
