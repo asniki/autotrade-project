@@ -43,7 +43,7 @@ import java.util.function.Consumer;
  * Версия 6.24 билд 2.21.14
  * от 20.09.2021
  */
-//@Component
+@Component
 @Slf4j
 public class ConnectorWrapperFlux {
 

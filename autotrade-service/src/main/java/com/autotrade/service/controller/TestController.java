@@ -26,13 +26,12 @@ public class TestController {
 
 //    private Runnable queueHandlerHolder;
 
-    private final ConnectorWrapper connector;
-
+    private final ConnectorWrapperFlux connectorFlux;
     private final DataContext dataContext;
     private final ObjectMapper objectMapper;
 
-    public TestController(ConnectorWrapper connectorWrapper, DataContext dataContext, ObjectMapper objectMapper) {
-        this.connector = connectorWrapper;
+    public TestController(ConnectorWrapperFlux connectorWrapperFlux, DataContext dataContext, ObjectMapper objectMapper) {
+        this.connectorFlux = connectorWrapperFlux;
         this.dataContext = dataContext;
         this.objectMapper = objectMapper;
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -42,11 +41,11 @@ public class TestController {
     @PostConstruct
     public void init() {
         try {
-            connector.setCallback();
-            connector.initialize();
-            connector.connect();
-            Thread.sleep(10_000);
-            connector.getConnectorVersion();
+            connectorFlux.setCallback();
+            connectorFlux.initialize();
+            connectorFlux.connect();
+            Thread.sleep(100_000);
+            connectorFlux.getConnectorVersion();
             Thread.sleep(5_000);
 
             log.info("SecurityInfoUpdates: " + dataContext.getSecurityInfoUpdates().size());
@@ -71,9 +70,9 @@ public class TestController {
             //TODO get_securities_info (3.20) + sec_info (4.7)
 
 
-            connector.disconnect();
+            connectorFlux.disconnect();
 //            Thread.sleep(5_000);
-            connector.uninitialize();
+            connectorFlux.uninitialize();
         }
         catch (ConnectorWrapperException | InterruptedException e) {
 //        catch (ConnectorWrapperException e) {
