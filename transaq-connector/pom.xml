@@ -34,6 +34,12 @@
 <!--            <version>3.3.5.RELEASE</version>-->
         </dependency>
 
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- JNA -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>

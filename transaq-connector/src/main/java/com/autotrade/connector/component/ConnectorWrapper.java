@@ -20,8 +20,10 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Processor;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,6 +31,7 @@ import org.xml.sax.SAXException;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import javax.xml.parsers.DocumentBuilder;
@@ -73,7 +76,7 @@ public class ConnectorWrapper {
     private TXMLConnector64.TCallback callbackHolder;
 
     private final Map<String, Consumer<String>> callbackHandlers;
-    private final Map<String, Function<String, Callback>> callbackHandlers2;
+//    private final Map<String, Function<String, Callback>> callbackHandlers2;
 
     private final StringPublisher publisher;
 
@@ -114,13 +117,12 @@ public class ConnectorWrapper {
         callbackHandlers.put("server_status", this::onServerStatusCallback);
         callbackHandlers.put("connector_version", this::onConnectorVersionCallback);
 
-        callbackHandlers2 = new HashMap<>();
-        callbackHandlers2.put("server_status", this::onServerStatusCallback2);
+//        callbackHandlers2 = new HashMap<>();
+//        callbackHandlers2.put("server_status", this::onServerStatusCallback2);
     }
 
 //    @PostConstruct
     public void init() {
-
         Flux
                 .<String>generate(sink -> sink.next("hello"))
                 .take(10)
@@ -248,9 +250,9 @@ public class ConnectorWrapper {
         log.info("server status: " + serverStatus.getConnected());
     }
 
-    public Callback onServerStatusCallback2(String data) {
-        return utils.deserializeCallback(data, ServerStatus2.class);
-    }
+//    public Callback onServerStatusCallback2(String data) {
+//        return utils.deserializeCallback(data, ServerStatus2.class);
+//    }
 
 
     public void onConnectorVersionCallback(String data) {

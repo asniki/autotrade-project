@@ -11,7 +11,6 @@ import com.autotrade.connector.model.command.Disconnect;
 import com.autotrade.connector.model.command.GetConnectorVersion;
 import com.autotrade.connector.model.response.Error;
 import com.autotrade.connector.model.response.Result;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sun.jna.Native;
@@ -21,23 +20,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.ConnectableFlux;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
-import reactor.core.publisher.GroupedFlux;
+import reactor.core.publisher.*;
+import reactor.core.scheduler.Schedulers;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Версия 6.24 билд 2.21.14
@@ -77,7 +75,24 @@ public class ConnectorWrapperFlux {
 //            "connector_version", ConnectorVersion.class
     );
 
-    public ConnectorWrapperFlux(Utils utils, ObjectMapper objectMapper, DataContext dataContext) throws ConnectorWrapperException, ParserConfigurationException {
+    private final List<String> forbiddenToLog;
+
+    @SneakyThrows
+    public ConnectorWrapperFlux(Utils utils, ObjectMapper objectMapper, DataContext dataContext) {
+
+        // com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot construct instance of `com.autotrade.connector.model.callback.ConnectorVersion2
+//        ConnectorVersion connectorVersion = null;
+//        ConnectorVersion2 connectorVersion2 = null;
+//        try {
+//            connectorVersion = utils.getXmlMapper().readValue("<connector_version>6.24.2.21.14</connector_version>", ConnectorVersion.class);
+//            connectorVersion2 = utils.getXmlMapper().readValue("<connector_version>6.24.2.21.14</connector_version>", ConnectorVersion2.class);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+//        log.info(connectorVersion2.getVersion());
+
+
+        forbiddenToLog = Stream.of(utils.getConnectionProfile().getPassword(), utils.getDemoConnectionProfile().getPassword()).filter(Objects::nonNull).collect(Collectors.toList());
 
         txmlConnector = Native.load("txmlconnector64.dll", TXMLConnector64.class);
         if(txmlConnector == null) {
@@ -98,35 +113,134 @@ public class ConnectorWrapperFlux {
 //        );
 
         // мапа для десериализации
-        Map<String, Class<? extends Callback>> callbackTypes = Map.of(
-                "server_status", ServerStatus2.class
-        );
+        final Map<String, Class<? extends Callback>> callbackTypes = new HashMap<>();
+        callbackTypes.put("error", Error.class);
+        callbackTypes.put("authentication", Authentication2.class);
+        callbackTypes.put("markets", Markets2.class);
+        callbackTypes.put("boards", Boards2.class);
+        callbackTypes.put("candlekinds", Candlekinds2.class);
+        callbackTypes.put("securities", Securities2.class);
+        callbackTypes.put("pits", Pits2.class);
+        callbackTypes.put("sec_info_upd", SecurityInfoUpdate2.class);
+        callbackTypes.put("client", Client2.class);
+        callbackTypes.put("positions", Positions2.class);
+        callbackTypes.put("overnight", Overnight2.class);
+        callbackTypes.put("messages", Messages2.class);
+        callbackTypes.put("server_status", ServerStatus2.class);
+        callbackTypes.put("connector_version", ConnectorVersion2.class);
 
         // мапа содержит списки подписчиков на потоки определенных по ключу объектов
-        Map<String, List<Consumer<? super Callback>>> callbackConsumers = Map.of(
-                "server_status", List.of(dataContext::onServerStatusCallback)
-        );
+        final Map<String, List<Consumer<? super Callback>>> callbackConsumers = new HashMap<>();
+        callbackConsumers.put("error", List.of(dataContext::onErrorCallback));
+        callbackConsumers.put("authentication", List.of(dataContext::onAuthenticationCallback));
+        callbackConsumers.put("markets", List.of(dataContext::onMarketsCallback));
+        callbackConsumers.put("boards", List.of(dataContext::onBoardsCallback));
+        callbackConsumers.put("candlekinds", List.of(dataContext::onCandlekindsCallback));
+        callbackConsumers.put("securities", List.of(dataContext::onSecuritiesCallback));
+        callbackConsumers.put("pits", List.of(dataContext::onPitsCallback));
+        callbackConsumers.put("sec_info_upd", List.of(dataContext::onSecurityInfoUpdateCallback));
+        callbackConsumers.put("client", List.of(dataContext::onClientCallback));
+        callbackConsumers.put("positions", List.of(dataContext::onPositionsCallback));
+        callbackConsumers.put("overnight", List.of(dataContext::onOvernightCallback));
+        callbackConsumers.put("messages", List.of(dataContext::onMessagesCallback));
+        callbackConsumers.put("server_status", List.of(dataContext::onServerStatusCallback, c -> log.info("second server_status subscriber")));
+        callbackConsumers.put("connector_version", List.of(dataContext::onConnectorVersionCallback));
 
         // через украденную ссылку handler колбек будет класть объекты в поток
-        Flux<Pointer> flux = Flux
+        Flux<Callback> flux = Flux
                 .<Pointer>create(emitter -> {
                     handler = emitter;
                     }, FluxSink.OverflowStrategy.BUFFER) //TODO or some other overflow strategy
-                .log();
-
-        // чтобы поток не сразу потек, а дождался всех подписчиков, оборачиваем в ConnectableFlux
-        ConnectableFlux<Pointer> connectableFlux = flux.publish();
-
-        connectableFlux
+//                .log("OriginalPublisher.")
+                .publishOn(Schedulers.parallel())
                 .map(pData -> {
                     String xmlData = utils.pointerToString(pData);
                     freeMemory(pData);
                     String rootName = utils.getRootElementName(xmlData);
+
+//                    if(rootName.equals("client")) {
+//                        log.info("rootName: " + rootName + "; client: " + xmlData + "; callbackType: " + callbackTypes.get(rootName));
+//                        log.info("client object: " + utils.deserializeCallbackFlux(xmlData, callbackTypes.get(rootName)).toString());
+//                    }
+
                     return callbackTypes.containsKey(rootName)
                             ? utils.deserializeCallbackFlux(xmlData, callbackTypes.get(rootName))
                             : new Callback(rootName);
                 })
-                .log();
+//                .log("ParsedObject.")
+                .publish()
+                .autoConnect(0);
+
+
+
+//        final Map<String, Flux<Callback>> fluxByType = new HashMap<>();
+//        fluxByType.put("error", flux.filter(c -> c.getType().equals("error")));
+//        fluxByType.put("authentication", flux.filter(c -> c.getType().equals("authentication")));
+//        fluxByType.put("markets", flux.filter(c -> c.getType().equals("markets")));
+//        fluxByType.put("boards", flux.filter(c -> c.getType().equals("boards")));
+//        fluxByType.put("candlekinds", flux.filter(c -> c.getType().equals("candlekinds")));
+//        fluxByType.put("securities", flux.filter(c -> c.getType().equals("securities")));
+//        fluxByType.put("pits", flux.filter(c -> c.getType().equals("pits")));
+//        fluxByType.put("sec_info_upd", flux.filter(c -> c.getType().equals("sec_info_upd")));
+//        fluxByType.put("client", flux.filter(c -> c.getType().equals("client")));
+//        fluxByType.put("positions", flux.filter(c -> c.getType().equals("positions")));
+//        fluxByType.put("overnight", flux.filter(c -> c.getType().equals("overnight")));
+//        fluxByType.put("messages", flux.filter(c -> c.getType().equals("messages")));
+//        fluxByType.put("server_status", flux.filter(c -> {
+//            log.info("filter by type server_status");
+//            return c.getType().equals("server_status");
+//        }));
+//        fluxByType.put("connector_version", flux.filter(c -> c.getType().equals("connector_version")));
+
+
+        callbackConsumers.keySet().forEach(key -> {
+//            if(key.equals("client"))
+//                log.info("subscribe to client");
+//
+//            if(key.equals("server_status"))
+//                log.info("subscribe to server_status");
+
+            Flux<Callback> filter = flux
+                    .filter(c -> {
+//                        if(key.equals("client"))
+//                            log.info("filter by type client");
+//                        if(key.equals("server_status"))
+//                            log.info("filter by type server_status");
+
+                        //TODO
+//                        if(c.getType().equals("client")) {
+//                            log.info("filtered client: " + c);
+//                            log.info("key: " + key + "; c.getType().equals(key) = " + c.getType().equals(key));
+//                        }
+//
+//                        if(c.getType().equals("server_status")) {
+//                            log.info("filtered server_status: " + c);
+//                            log.info("key: " + key + "; c.getType().equals(key) = " + c.getType().equals(key));
+//                        }
+
+                        return c.getKind().equals(key);
+                    });
+//                    .log("filter.", Level.INFO, SignalType.ON_SUBSCRIBE);
+            callbackConsumers.get(key).forEach(filter::subscribe);
+        });
+
+//        callbackConsumers.keySet().forEach(key -> {
+//            callbackConsumers.get(key).forEach(fluxByType.get(key)::subscribe);
+//        });
+
+        // чтобы поток не сразу потек, а дождался всех подписчиков, оборачиваем в ConnectableFlux
+//        ConnectableFlux<Pointer> connectableFlux = flux.publish();
+//
+//        connectableFlux
+//                .map(pData -> {
+//                    String xmlData = utils.pointerToString(pData);
+//                    freeMemory(pData);
+//                    String rootName = utils.getRootElementName(xmlData);
+//                    return callbackTypes.containsKey(rootName)
+//                            ? utils.deserializeCallbackFlux(xmlData, callbackTypes.get(rootName))
+//                            : new Callback(rootName);
+//                })
+//                .log();
 
 //        connectableFlux
 ////        flux
@@ -153,7 +267,7 @@ public class ConnectorWrapperFlux {
 //                .then();//TODO тут наверно нужна терминальная операция чтобы триггернуть предыдущие
 
         // запускаем течение
-        connectableFlux.connect();
+//        connectableFlux.connect();
 
 
         //TODO получить Map<String, ConnectableFlux<Callback>> и подписываться по ключу на соответствующие флаксы - фантазия
@@ -231,7 +345,16 @@ public class ConnectorWrapperFlux {
         try {
             String commandString = utils.serializeCommand(command);
             Pointer commandPtr = utils.stringToPointer(commandString);
-            log.info("SendCommand: {}", commandString);
+            if(command instanceof Connect) {
+                String toLog = commandString;
+                for(var f : forbiddenToLog)
+                    toLog = toLog.replace(f, "*");
+                log.info("SendCommand: {}", toLog);
+            }
+            else {
+                log.info("SendCommand: {}", commandString);
+            }
+
             Pointer responsePtr = txmlConnector.SendCommand(commandPtr);
             String responseString = utils.pointerToString(responsePtr);
             freeMemory(responsePtr);
@@ -253,8 +376,8 @@ public class ConnectorWrapperFlux {
     }
 
     public Result connect() throws ConnectorWrapperException, IOException {
-//        ConnectionProfile connectionProfile = utils.getConnectionProfile();
-        ConnectionProfile connectionProfile = utils.getDemoConnectionProfile();
+        ConnectionProfile connectionProfile = utils.getConnectionProfile();
+//        ConnectionProfile connectionProfile = utils.getDemoConnectionProfile();
 
         Connect connect = Connect.builder()
                 .login(connectionProfile.getLogin())

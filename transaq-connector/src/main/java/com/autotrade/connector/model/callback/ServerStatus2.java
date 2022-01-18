@@ -46,18 +46,7 @@ public class ServerStatus2 extends Callback {
     private String message;
 
     public ServerStatus2() {
-        this.type = "server_status";
-    }
-
-    public ServerStatus2(Integer systemVersion, Integer build, String serverTimeZone, Integer id, String connected, String recover, String message) {
-        this();
-        this.systemVersion = systemVersion;
-        this.build = build;
-        this.serverTimeZone = serverTimeZone;
-        this.id = id;
-        this.connected = connected;
-        this.recover = recover;
-        this.message = message;
+        this.kind = "server_status";
     }
 }
 

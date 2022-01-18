@@ -58,6 +58,10 @@ public class Utils {
         documentBuilder = dbf.newDocumentBuilder();
     }
 
+    public XmlMapper getXmlMapper() {
+        return xmlMapper;
+    }
+
     // DocumentBuilder - not thread safe
     // http://www.javaroots.com/2014/08/jaxb-error-fwk005-parse-may-not-be.html
     public String getRootElementName1(String xmlData) {

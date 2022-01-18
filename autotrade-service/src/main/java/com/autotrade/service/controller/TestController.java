@@ -44,28 +44,28 @@ public class TestController {
             connectorFlux.setCallback();
             connectorFlux.initialize();
             connectorFlux.connect();
-            Thread.sleep(100_000);
+            Thread.sleep(10_000);
             connectorFlux.getConnectorVersion();
             Thread.sleep(5_000);
 
-            log.info("SecurityInfoUpdates: " + dataContext.getSecurityInfoUpdates().size());
-            log.info("SecurityInfoUpdates getPointCost: " + dataContext.getSecurityInfoUpdates().get(0).getPointCost());
+            log.info("SecurityInfoUpdates: " + dataContext.getSecurityInfoUpdates2().size());
+            log.info("SecurityInfoUpdates getPointCost: " + dataContext.getSecurityInfoUpdates2().get(0).getPointCost());
 
-            log.info("server status: " + dataContext.getServerStatus().getConnected());
+            log.info("server status: " + dataContext.getServerStatus2().getConnected());
 
-            int clientMarket = dataContext.getClients().get(0).getMarket();
-            Map<Integer, List<Boards.Board>> boardsByMarket = dataContext.getBoards().stream().collect(Collectors.groupingBy(Boards.Board::getMarket));
-            Map<Integer, List<Pits.Pit>> pitsByMarket = dataContext.getPits().stream().collect(Collectors.groupingBy(Pits.Pit::getMarket));
-            Map<Integer, Map<String, List<Pits.Pit>>> pitsByMarketAndBoard = dataContext.getPits().stream().collect(Collectors.groupingBy(Pits.Pit::getMarket, Collectors.groupingBy(Pits.Pit::getBoard)));
-            List<Integer> moneyPositionMarkets = dataContext.getPositions().getMoneyPositions().get(0).getMarkets();
-            List<Integer> securityPositionMarkets = dataContext.getPositions().getSecurityPositions().stream().map(Positions.SecurityPosition::getMarket).collect(Collectors.toList());
-            Map<Integer, List<Securities.Security>> securitiesByMarket = dataContext.getSecurities().stream().collect(Collectors.groupingBy(Securities.Security::getMarket));
-            Map<Integer, List<SecurityInfoUpdate>> securityInfoUpdatesByMarket = dataContext.getSecurityInfoUpdates().stream().collect(Collectors.groupingBy(SecurityInfoUpdate::getMarket));
+            int clientMarket = dataContext.getClients2().get(0).getMarket();
+            Map<Integer, List<Boards2.Board>> boardsByMarket = dataContext.getBoards2().stream().collect(Collectors.groupingBy(Boards2.Board::getMarket));
+            Map<Integer, List<Pits2.Pit>> pitsByMarket = dataContext.getPits2().stream().collect(Collectors.groupingBy(Pits2.Pit::getMarket));
+            Map<Integer, Map<String, List<Pits2.Pit>>> pitsByMarketAndBoard = dataContext.getPits2().stream().collect(Collectors.groupingBy(Pits2.Pit::getMarket, Collectors.groupingBy(Pits2.Pit::getBoard)));
+            List<Integer> moneyPositionMarkets = dataContext.getPositions2().getMoneyPositions().get(0).getMarkets();
+            List<Integer> securityPositionMarkets = dataContext.getPositions2().getSecurityPositions().stream().map(Positions2.SecurityPosition::getMarket).collect(Collectors.toList());
+            Map<Integer, List<Securities2.Security>> securitiesByMarket = dataContext.getSecurities2().stream().collect(Collectors.groupingBy(Securities2.Security::getMarket));
+            Map<Integer, List<SecurityInfoUpdate2>> securityInfoUpdatesByMarket = dataContext.getSecurityInfoUpdates2().stream().collect(Collectors.groupingBy(SecurityInfoUpdate2::getMarket));
 
             //TODO выбрать из всех справочников SBER
-            List<Securities.Security> sberSecurities = dataContext.getSecurities().stream().filter(s -> s.getSecurityCode().equals("SBER")).collect(Collectors.toList());
-            List<SecurityInfoUpdate> sberSecurityInfoUpdates = dataContext.getSecurityInfoUpdates().stream().filter(s -> s.getSecurityCode().equals("SBER")).collect(Collectors.toList());
-            List<Pits.Pit> sberPits = dataContext.getPits().stream().filter(s -> s.getSecurityCode().equals("SBER")).collect(Collectors.toList());
+            List<Securities2.Security> sberSecurities = dataContext.getSecurities2().stream().filter(s -> s.getSecurityCode().equals("SBER")).collect(Collectors.toList());
+            List<SecurityInfoUpdate2> sberSecurityInfoUpdates = dataContext.getSecurityInfoUpdates2().stream().filter(s -> s.getSecurityCode().equals("SBER")).collect(Collectors.toList());
+            List<Pits2.Pit> sberPits = dataContext.getPits2().stream().filter(s -> s.getSecurityCode().equals("SBER")).collect(Collectors.toList());
 
             //TODO get_securities_info (3.20) + sec_info (4.7)
 
