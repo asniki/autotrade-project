@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  * @deprecated
  */
 @JacksonXmlRootElement(localName = "authentication")

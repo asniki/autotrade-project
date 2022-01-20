@@ -6,6 +6,8 @@ import lombok.Data;
 
 /**
  * Версия коннектора (библиотеки)
+ * Сообщение приходит:
+ * как асинхронный ответ на команду get_connector_version,
  */
 @JacksonXmlRootElement(localName = "connector_version")
 @Data

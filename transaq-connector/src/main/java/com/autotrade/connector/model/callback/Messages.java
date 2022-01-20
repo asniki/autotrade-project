@@ -13,6 +13,8 @@ import java.util.List;
 
 /**
  * Текстовые сообщения
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "messages")
 @Data

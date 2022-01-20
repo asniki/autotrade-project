@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Базовый класс всех колбеков.
+ * Содержит строковый идентификатор типа данных.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

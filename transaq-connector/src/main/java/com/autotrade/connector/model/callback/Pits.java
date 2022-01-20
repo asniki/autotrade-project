@@ -12,6 +12,8 @@ import java.util.List;
 
 /**
  * Параметры инструментов в разных режимах торгов
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "pits")
 @Data

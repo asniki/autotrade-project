@@ -10,6 +10,8 @@ import java.util.List;
 
 /**
  * Информация о доступных периодах свечей
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "candlekinds")
 @EqualsAndHashCode(callSuper = true)

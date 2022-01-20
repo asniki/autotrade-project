@@ -14,6 +14,8 @@ import java.util.stream.Stream;
 
 /**
  * Позиции клиента
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "positions")
 @Data

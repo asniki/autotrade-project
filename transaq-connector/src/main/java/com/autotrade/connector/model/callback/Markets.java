@@ -10,6 +10,8 @@ import java.util.List;
 
 /**
  * Доступные рынки
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "markets")
 @Data

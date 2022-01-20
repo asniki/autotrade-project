@@ -5,10 +5,7 @@ import com.autotrade.connector.exception.ConnectorWrapperException;
 import com.autotrade.connector.exception.SendCommandException;
 import com.autotrade.connector.model.ConnectionProfile;
 import com.autotrade.connector.model.callback.*;
-import com.autotrade.connector.model.command.Command;
-import com.autotrade.connector.model.command.Connect;
-import com.autotrade.connector.model.command.Disconnect;
-import com.autotrade.connector.model.command.GetConnectorVersion;
+import com.autotrade.connector.model.command.*;
 import com.autotrade.connector.model.response.Error;
 import com.autotrade.connector.model.response.Result;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -283,6 +280,8 @@ public class ConnectorWrapperFlux {
 //        handler.next(pData);
 //    }
 
+
+    /** SetCallback API */
     public void setCallback() throws ConnectorWrapperException {
         TXMLConnector64.TCallback callback = new TXMLConnector64.TCallback() {
             @Override
@@ -301,6 +300,15 @@ public class ConnectorWrapperFlux {
         callbackHolder = callback;
     }
 
+    /** FreeMemory API */
+    private void freeMemory(Pointer pData) {
+        boolean freeMemory = txmlConnector.FreeMemory(pData);
+        if(!freeMemory) {
+            log.error("error while FreeMemory call");
+        }
+    }
+
+    /** Initialize API */
     public void initialize() throws ConnectorWrapperException {
         Path logsPath = Paths.get("logs").toAbsolutePath();
         try {
@@ -325,6 +333,7 @@ public class ConnectorWrapperFlux {
         }
     }
 
+    /** UnInitialize API */
     public void uninitialize() throws ConnectorWrapperException {
         Pointer unInitializePtr = txmlConnector.UnInitialize();
         String unInitialize = "0";
@@ -341,6 +350,7 @@ public class ConnectorWrapperFlux {
         }
     }
 
+    /** SendCommand API */
     public <T extends Command, V extends Result> V sendCommand(T command, Class<V> clazz) throws ConnectorWrapperException {
         try {
             String commandString = utils.serializeCommand(command);
@@ -375,6 +385,7 @@ public class ConnectorWrapperFlux {
         }
     }
 
+    /** Command connect */
     public Result connect() throws ConnectorWrapperException, IOException {
         ConnectionProfile connectionProfile = utils.getConnectionProfile();
 //        ConnectionProfile connectionProfile = utils.getDemoConnectionProfile();
@@ -394,34 +405,24 @@ public class ConnectorWrapperFlux {
         return sendCommand(connect, Result.class);
     }
 
-    public Result getConnectorVersion() throws ConnectorWrapperException {
-        GetConnectorVersion getConnectorVersion = new GetConnectorVersion();
-        return sendCommand(getConnectorVersion, Result.class);
-    }
-
+    /** Command disconnect */
     public Result disconnect() throws ConnectorWrapperException {
         Disconnect disconnect = new Disconnect();
         return sendCommand(disconnect, Result.class);
     }
 
-    private void freeMemory(Pointer pData) {
-        boolean freeMemory = txmlConnector.FreeMemory(pData);
-        if(!freeMemory) {
-            log.error("error while FreeMemory call");
-        }
+    /** Command get_connector_version */
+    public Result getConnectorVersion() throws ConnectorWrapperException {
+        GetConnectorVersion getConnectorVersion = new GetConnectorVersion();
+        return sendCommand(getConnectorVersion, Result.class);
     }
 
-    public static class StringPublisher implements Publisher<String> {
+    /** Command server_status */
+    public Result getServerStatus() throws ConnectorWrapperException {
+        GetServerStatus getServerStatus = new GetServerStatus();
+        return sendCommand(getServerStatus, Result.class);
+    }
 
-        private Subscriber<String> subscriber;
 
-        @Override
-        public void subscribe(Subscriber<? super String> subscriber) {
-            this.subscriber = (Subscriber<String>) subscriber;
-        }
-
-        public void publish(String str) {
-            subscriber.onNext(str);
-        }
-    };
+    /** Command  */
 }

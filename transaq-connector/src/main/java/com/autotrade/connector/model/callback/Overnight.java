@@ -7,6 +7,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Режим кредитования
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  * @deprecated
  */
 @JacksonXmlRootElement(localName = "overnight")

@@ -46,6 +46,7 @@ public class TestController {
             connectorFlux.connect();
             Thread.sleep(10_000);
             connectorFlux.getConnectorVersion();
+            connectorFlux.getServerStatus();
             Thread.sleep(5_000);
 
             log.info("SecurityInfoUpdates: " + dataContext.getSecurityInfoUpdates2().size());

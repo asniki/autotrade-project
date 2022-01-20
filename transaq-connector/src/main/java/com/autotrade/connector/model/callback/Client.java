@@ -6,6 +6,8 @@ import lombok.Data;
 
 /**
  * Клиентский счет
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "client")
 @Data

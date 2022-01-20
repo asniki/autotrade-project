@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 
 /**
  * Версия коннектора (библиотеки)
+ * Сообщение приходит:
+ * как асинхронный ответ на команду get_connector_version,
  */
 @JacksonXmlRootElement(localName = "connector_version")
 @EqualsAndHashCode(callSuper = true)

@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 
 /**
  * Режим кредитования
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  * @deprecated
  */
 @JacksonXmlRootElement(localName = "overnight")

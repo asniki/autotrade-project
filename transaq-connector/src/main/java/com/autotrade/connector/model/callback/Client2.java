@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 
 /**
  * Клиентский счет
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "client")
 @EqualsAndHashCode(callSuper = true)

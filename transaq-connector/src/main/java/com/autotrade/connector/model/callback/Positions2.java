@@ -13,6 +13,8 @@ import java.util.List;
 
 /**
  * Позиции клиента
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "positions")
 @EqualsAndHashCode(callSuper = true)

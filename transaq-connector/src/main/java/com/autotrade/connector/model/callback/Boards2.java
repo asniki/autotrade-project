@@ -10,6 +10,8 @@ import java.util.List;
 
 /**
  * Справочник режимов торгов
+ * Сообщение приходит:
+ * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "boards")
 @EqualsAndHashCode(callSuper = true)
