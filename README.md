@@ -55,10 +55,10 @@ https://stackabuse.com/serialize-and-deserialize-xml-in-java-with-jackson/
 13. [ ] get_client_limits (13)
     - clientlimits (15)
 
-14. [ ] get_markets (14)
+14. [x] get_markets (14)
     - markets (4)
 
-15. [ ] get_servtime_difference (15)
+15. [x] get_servtime_difference (15)
 
 16. [ ] change_pass (16)
 

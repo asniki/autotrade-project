@@ -14,9 +14,9 @@ import lombok.Data;
 public class Result {
     /** true / false */
     @JacksonXmlProperty(isAttribute = true, localName = "success")
-    private String success;
+    protected String success;
 
     /** Сообщение об ошибке (если success == false) */
     @JacksonXmlProperty(localName = "message")
-    private String message;
+    protected String message;
 }

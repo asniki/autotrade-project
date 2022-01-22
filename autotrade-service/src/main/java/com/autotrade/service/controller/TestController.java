@@ -4,6 +4,7 @@ import com.autotrade.connector.component.ConnectorWrapperFlux;
 import com.autotrade.connector.component.DataContext;
 import com.autotrade.connector.exception.ConnectorWrapperException;
 import com.autotrade.connector.model.callback.*;
+import com.autotrade.connector.model.response.TimeDifferenceResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -51,7 +52,11 @@ public class TestController {
 
             connectorFlux.getSecurities();
             connectorFlux.getServerId();
+            connectorFlux.getMarkets();
             Thread.sleep(1_000);
+
+            TimeDifferenceResult servTimeDifference = connectorFlux.getServTimeDifference();
+            log.info("TimeDifference: "+ servTimeDifference.getTimeDifference());
 
             log.info("SecurityInfoUpdates: " + dataContext.getSecurityInfoUpdates().size());
             log.info("SecurityInfoUpdates getPointCost: " + dataContext.getSecurityInfoUpdates().get(0).getPointCost());

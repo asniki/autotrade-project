@@ -13,6 +13,7 @@ import java.util.List;
  * Доступные рынки
  * Сообщение приходит:
  * как асинхронный ответ на команду connect,
+ * как асинхронный ответ на команду get_markets
  */
 @JacksonXmlRootElement(localName = "markets")
 @EqualsAndHashCode(callSuper = true)

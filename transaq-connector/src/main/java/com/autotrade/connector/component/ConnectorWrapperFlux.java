@@ -8,6 +8,7 @@ import com.autotrade.connector.model.callback.*;
 import com.autotrade.connector.model.command.*;
 import com.autotrade.connector.model.response.Error;
 import com.autotrade.connector.model.response.Result;
+import com.autotrade.connector.model.response.TimeDifferenceResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sun.jna.Native;
@@ -440,5 +441,17 @@ public class ConnectorWrapperFlux {
     public Result getServerId() throws ConnectorWrapperException {
         GetServerId getServerId = new GetServerId();
         return sendCommand(getServerId, Result.class);
+    }
+
+    /** Command get_markets */
+    public Result getMarkets() throws ConnectorWrapperException {
+        GetMarkets getMarkets = new GetMarkets();
+        return sendCommand(getMarkets, Result.class);
+    }
+
+    /** Command get_servtime_difference */
+    public TimeDifferenceResult getServTimeDifference() throws ConnectorWrapperException {
+        GetServTimeDifference getServTimeDifference = new GetServTimeDifference();
+        return sendCommand(getServTimeDifference, TimeDifferenceResult.class);
     }
 }

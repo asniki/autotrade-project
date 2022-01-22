@@ -105,7 +105,7 @@ public class DataContext {
 
     public <T> void onErrorCallback(T data) {
         Error error = (Error) data;
-        log.error(error.getMessage());
+        log.error("[onErrorCallback] " + error.getMessage());
     }
 
     public <T> void onAuthenticationCallback(T data) {
@@ -115,6 +115,11 @@ public class DataContext {
 
     public <T> void onMarketsCallback(T data) {
         Markets newMarkets = (Markets) data;
+        if(serverStatus != null && serverStatus.getConnected().equals("true") && newMarkets.getItems().size() > 0) {
+            log.info("[onMarketsCallback] Markets previous count: " + getMarkets().size());
+            log.info("[onMarketsCallback] Markets new count: " + newMarkets.getItems().size());
+            markets.clear();
+        }
         getMarkets().addAll(newMarkets.getItems());
     }
 
@@ -131,8 +136,8 @@ public class DataContext {
     public <T> void onSecuritiesCallback(T data) {
         Securities newSecurities = (Securities) data;
         if(serverStatus != null && serverStatus.getConnected().equals("true") && newSecurities.getItems().size() > 0) {
-            log.info("Securities previous count: " + getSecurities().size());
-            log.info("Securities new count: " + newSecurities.getItems().size());
+            log.info("[onSecuritiesCallback] Securities previous count: " + getSecurities().size());
+            log.info("[onSecuritiesCallback] Securities new count: " + newSecurities.getItems().size());
             securities.clear();
         }
         getSecurities().addAll(newSecurities.getItems());
@@ -171,7 +176,7 @@ public class DataContext {
     public <T> void onServerStatusCallback(T data) {
         ServerStatus newServerStatus = (ServerStatus) data;
         setServerStatus(newServerStatus);
-        log.info("server status: " + newServerStatus.getConnected());
+        log.info("[onServerStatusCallback] server status: " + newServerStatus.getConnected());
     }
 
     public <T> void onConnectorVersionCallback(T data) {
