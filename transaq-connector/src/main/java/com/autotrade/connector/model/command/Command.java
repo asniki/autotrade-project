@@ -4,7 +4,14 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.Data;
 
 /**
- * Базовый класс команды
+ * Базовый класс команды.
+ * Все команды:
+ * connect
+ * disconnect
+ * get_connector_version
+ * server_status
+ * get_securities
+ * get_server_id
  */
 @Data
 public class Command {

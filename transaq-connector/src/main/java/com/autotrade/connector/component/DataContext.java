@@ -1,14 +1,12 @@
 package com.autotrade.connector.component;
 
 import com.autotrade.connector.model.callback.*;
-import com.autotrade.connector.model.command.Command;
 import com.autotrade.connector.model.response.Error;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -70,59 +68,9 @@ public class DataContext {
     @Setter
     private List<Messages.Message> messages;
 
-
-
     @Getter
     @Setter
-    private volatile ServerStatus2 serverStatus2;
-
-    @Getter
-    @Setter
-    private volatile ConnectorVersion2 connectorVersion2;
-
-    @Getter
-    @Setter
-    private volatile Positions2 positions2;
-
-    @Getter
-    @Setter
-    private volatile Authentication2 authentication2;
-
-    @Getter
-    @Setter
-    private volatile Overnight2 overnight2;
-
-    @Getter
-    @Setter
-    private List<Securities2.Security> securities2;
-
-    @Getter
-    @Setter
-    private List<SecurityInfoUpdate2> securityInfoUpdates2;
-
-    @Getter
-    @Setter
-    private List<Pits2.Pit> pits2;
-
-    @Getter
-    @Setter
-    private List<Boards2.Board> boards2;
-
-    @Getter
-    @Setter
-    private List<Candlekinds2.CandleKind> candleKinds2;
-
-    @Getter
-    @Setter
-    private List<Client2> clients2;
-
-    @Getter
-    @Setter
-    private List<Markets2.Market> markets2;
-
-    @Getter
-    @Setter
-    private List<Messages2.Message> messages2;
+    private volatile CurrentServer currentServer;
 
 
 
@@ -135,15 +83,6 @@ public class DataContext {
         clients = Collections.synchronizedList(new ArrayList<>());
         markets = Collections.synchronizedList(new ArrayList<>());
         messages = Collections.synchronizedList(new ArrayList<>());
-
-        securities2 = Collections.synchronizedList(new ArrayList<>());
-        securityInfoUpdates2 = Collections.synchronizedList(new ArrayList<>());
-        pits2 = Collections.synchronizedList(new ArrayList<>());
-        boards2 = Collections.synchronizedList(new ArrayList<>());
-        candleKinds2 = Collections.synchronizedList(new ArrayList<>());
-        clients2 = Collections.synchronizedList(new ArrayList<>());
-        markets2 = Collections.synchronizedList(new ArrayList<>());
-        messages2 = Collections.synchronizedList(new ArrayList<>());
     }
 
     public void reset() {
@@ -152,6 +91,7 @@ public class DataContext {
         positions = null;
         authentication = null;
         overnight = null;
+        currentServer = null;
 
         securities.clear();
         securityInfoUpdates.clear();
@@ -169,68 +109,78 @@ public class DataContext {
     }
 
     public <T> void onAuthenticationCallback(T data) {
-        Authentication2 authentication = (Authentication2) data;
-        setAuthentication2(authentication);
+        Authentication newAuthentication = (Authentication) data;
+        setAuthentication(newAuthentication);
     }
 
     public <T> void onMarketsCallback(T data) {
-        Markets2 markets = (Markets2) data;
-        getMarkets2().addAll(markets.getItems());
+        Markets newMarkets = (Markets) data;
+        getMarkets().addAll(newMarkets.getItems());
     }
 
     public <T> void onBoardsCallback(T data) {
-        Boards2 boards = (Boards2) data;
-        getBoards2().addAll(boards.getItems());
+        Boards newBoards = (Boards) data;
+        getBoards().addAll(newBoards.getItems());
     }
 
     public <T> void onCandlekindsCallback(T data) {
-        Candlekinds2 candlekinds = (Candlekinds2) data;
-        getCandleKinds2().addAll(candlekinds.getItems());
+        Candlekinds newCandlekinds = (Candlekinds) data;
+        getCandleKinds().addAll(newCandlekinds.getItems());
     }
 
     public <T> void onSecuritiesCallback(T data) {
-        Securities2 securities = (Securities2) data;
-        getSecurities2().addAll(securities.getItems());
+        Securities newSecurities = (Securities) data;
+        if(serverStatus != null && serverStatus.getConnected().equals("true") && newSecurities.getItems().size() > 0) {
+            log.info("Securities previous count: " + getSecurities().size());
+            log.info("Securities new count: " + newSecurities.getItems().size());
+            securities.clear();
+        }
+        getSecurities().addAll(newSecurities.getItems());
     }
 
     public <T> void onPitsCallback(T data) {
-        Pits2 pits = (Pits2) data;
-        getPits2().addAll(pits.getItems());
+        Pits newPits = (Pits) data;
+        getPits().addAll(newPits.getItems());
     }
 
     public <T> void onSecurityInfoUpdateCallback(T data) {
-        SecurityInfoUpdate2 securityInfoUpdate = (SecurityInfoUpdate2) data;
-        getSecurityInfoUpdates2().add(securityInfoUpdate);
+        SecurityInfoUpdate newSecurityInfoUpdate = (SecurityInfoUpdate) data;
+        getSecurityInfoUpdates().add(newSecurityInfoUpdate);
     }
 
     public <T> void onClientCallback(T data) {
-        Client2 client = (Client2) data;
-        getClients2().add(client);
+        Client newClient = (Client) data;
+        getClients().add(newClient);
     }
 
     public <T> void onPositionsCallback(T data) {
-        Positions2 positions = (Positions2) data;
-        setPositions2(positions);
+        Positions newPositions = (Positions) data;
+        setPositions(newPositions);
     }
 
     public <T> void onOvernightCallback(T data) {
-        Overnight2 overnight = (Overnight2) data;
-        setOvernight2(overnight);
+        Overnight newOvernight = (Overnight) data;
+        setOvernight(newOvernight);
     }
 
     public <T> void onMessagesCallback(T data) {
-        Messages2 messages = (Messages2) data;
-        getMessages2().addAll(messages.getItems());
+        Messages newMessages = (Messages) data;
+        getMessages().addAll(newMessages.getItems());
     }
 
     public <T> void onServerStatusCallback(T data) {
-        ServerStatus2 serverStatus = (ServerStatus2) data;
-        setServerStatus2(serverStatus);
-        log.info("server status: " + serverStatus.getConnected());
+        ServerStatus newServerStatus = (ServerStatus) data;
+        setServerStatus(newServerStatus);
+        log.info("server status: " + newServerStatus.getConnected());
     }
 
     public <T> void onConnectorVersionCallback(T data) {
-        ConnectorVersion2 connectorVersion = (ConnectorVersion2) data;
-        setConnectorVersion2(connectorVersion);
+        ConnectorVersion newConnectorVersion = (ConnectorVersion) data;
+        setConnectorVersion(newConnectorVersion);
+    }
+
+    public <T> void onCurrentServer(T data) {
+        CurrentServer newCurrentServer = (CurrentServer) data;
+        setCurrentServer(newCurrentServer);
     }
 }

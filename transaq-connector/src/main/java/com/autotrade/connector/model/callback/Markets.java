@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -14,12 +15,17 @@ import java.util.List;
  * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "markets")
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Markets {
+public class Markets extends Callback {
 
     @JacksonXmlProperty(localName = "market")
     @JacksonXmlElementWrapper(useWrapping = false)
     private List<Market> items;
+
+    public Markets() {
+        this.kind = "markets";
+    }
 
     /**
      * Рынок

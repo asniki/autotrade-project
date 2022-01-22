@@ -14,13 +14,10 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.*;
 import reactor.core.scheduler.Schedulers;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,7 +65,7 @@ public class ConnectorWrapperFlux {
 //            "positions", Positions.class,
 //            "overnight", Overnight.class,
 //            "messages", Messages.class,
-            "server_status", ServerStatus2.class
+            "server_status", ServerStatus.class
 //            "connector_version", ConnectorVersion.class
     );
 
@@ -112,19 +109,20 @@ public class ConnectorWrapperFlux {
         // мапа для десериализации
         final Map<String, Class<? extends Callback>> callbackTypes = new HashMap<>();
         callbackTypes.put("error", Error.class);
-        callbackTypes.put("authentication", Authentication2.class);
-        callbackTypes.put("markets", Markets2.class);
-        callbackTypes.put("boards", Boards2.class);
-        callbackTypes.put("candlekinds", Candlekinds2.class);
-        callbackTypes.put("securities", Securities2.class);
-        callbackTypes.put("pits", Pits2.class);
-        callbackTypes.put("sec_info_upd", SecurityInfoUpdate2.class);
-        callbackTypes.put("client", Client2.class);
-        callbackTypes.put("positions", Positions2.class);
-        callbackTypes.put("overnight", Overnight2.class);
-        callbackTypes.put("messages", Messages2.class);
-        callbackTypes.put("server_status", ServerStatus2.class);
-        callbackTypes.put("connector_version", ConnectorVersion2.class);
+        callbackTypes.put("authentication", Authentication.class);
+        callbackTypes.put("markets", Markets.class);
+        callbackTypes.put("boards", Boards.class);
+        callbackTypes.put("candlekinds", Candlekinds.class);
+        callbackTypes.put("securities", Securities.class);
+        callbackTypes.put("pits", Pits.class);
+        callbackTypes.put("sec_info_upd", SecurityInfoUpdate.class);
+        callbackTypes.put("client", Client.class);
+        callbackTypes.put("positions", Positions.class);
+        callbackTypes.put("overnight", Overnight.class);
+        callbackTypes.put("messages", Messages.class);
+        callbackTypes.put("server_status", ServerStatus.class);
+        callbackTypes.put("connector_version", ConnectorVersion.class);
+        callbackTypes.put("current_server", CurrentServer.class);
 
         // мапа содержит списки подписчиков на потоки определенных по ключу объектов
         final Map<String, List<Consumer<? super Callback>>> callbackConsumers = new HashMap<>();
@@ -142,6 +140,7 @@ public class ConnectorWrapperFlux {
         callbackConsumers.put("messages", List.of(dataContext::onMessagesCallback));
         callbackConsumers.put("server_status", List.of(dataContext::onServerStatusCallback, c -> log.info("second server_status subscriber")));
         callbackConsumers.put("connector_version", List.of(dataContext::onConnectorVersionCallback));
+        callbackConsumers.put("current_server", List.of(dataContext::onCurrentServer));
 
         // через украденную ссылку handler колбек будет класть объекты в поток
         Flux<Callback> flux = Flux
@@ -164,6 +163,7 @@ public class ConnectorWrapperFlux {
                             ? utils.deserializeCallbackFlux(xmlData, callbackTypes.get(rootName))
                             : new Callback(rootName);
                 })
+                .doOnError(error -> log.error("Initial flux error", error))
 //                .log("ParsedObject.")
                 .publish()
                 .autoConnect(0);
@@ -216,10 +216,17 @@ public class ConnectorWrapperFlux {
 //                        }
 
                         return c.getKind().equals(key);
-                    });
-//                    .log("filter.", Level.INFO, SignalType.ON_SUBSCRIBE);
-            callbackConsumers.get(key).forEach(filter::subscribe);
+                    })
+                    .log("filter_" + key + ".", Level.INFO, SignalType.ON_SUBSCRIBE)
+                    .doOnError(error -> log.error("Filtered flux error; callback kind: " + key, error));
+//            callbackConsumers.get(key).forEach(filter::subscribe);
+            callbackConsumers.get(key).forEach(consumer -> filter.subscribe(consumer,
+                    error -> log.error("Filtered flux subscriber error; callback kind: " + key, error)));
         });
+
+        flux
+                .filter(c -> !callbackConsumers.containsKey(c.getKind()))
+                .subscribe(c -> log.warn("Unhandled callback: " + c.getKind()));
 
 //        callbackConsumers.keySet().forEach(key -> {
 //            callbackConsumers.get(key).forEach(fluxByType.get(key)::subscribe);
@@ -359,16 +366,16 @@ public class ConnectorWrapperFlux {
                 String toLog = commandString;
                 for(var f : forbiddenToLog)
                     toLog = toLog.replace(f, "*");
-                log.info("SendCommand: {}", toLog);
+                log.info(">> {}: {}", command.getId(), toLog);
             }
             else {
-                log.info("SendCommand: {}", commandString);
+                log.info(">> {}: {}", command.getId(), commandString);
             }
 
             Pointer responsePtr = txmlConnector.SendCommand(commandPtr);
             String responseString = utils.pointerToString(responsePtr);
             freeMemory(responsePtr);
-            log.info("SendCommand response: {}", responseString);
+            log.info("<< {}: {}", command.getId(), responseString);
             String responseRootElement = utils.getRootElementName(responseString);
             switch (responseRootElement) {
                 case "error":
@@ -423,6 +430,15 @@ public class ConnectorWrapperFlux {
         return sendCommand(getServerStatus, Result.class);
     }
 
+    /** Command get_securities */
+    public Result getSecurities() throws ConnectorWrapperException {
+        GetSecurities getSecurities = new GetSecurities();
+        return sendCommand(getSecurities, Result.class);
+    }
 
-    /** Command  */
+    /** Command get_server_id */
+    public Result getServerId() throws ConnectorWrapperException {
+        GetServerId getServerId = new GetServerId();
+        return sendCommand(getServerId, Result.class);
+    }
 }

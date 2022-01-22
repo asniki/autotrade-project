@@ -4,6 +4,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Состояние сервера.
@@ -13,8 +14,9 @@ import lombok.Data;
  * как асинхронный ответ на команду server_status.
  */
 @JacksonXmlRootElement(localName = "server_status")
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class ServerStatus {
+public class ServerStatus extends Callback {
     /** Версия системы */
     @JacksonXmlProperty(isAttribute = true, localName = "sys_ver")
     private Integer systemVersion;
@@ -42,5 +44,9 @@ public class ServerStatus {
     /** Сообщение об ошибке при connected="error" */
     @JacksonXmlText
     private String message;
+
+    public ServerStatus() {
+        this.kind = "server_status";
+    }
 }
 

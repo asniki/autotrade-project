@@ -3,6 +3,7 @@ package com.autotrade.connector.model.callback;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Клиентский счет
@@ -10,8 +11,9 @@ import lombok.Data;
  * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "client")
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Client {
+public class Client extends Callback {
     /** ID клиента */
     @JacksonXmlProperty(isAttribute = true, localName = "id")
     private String id;
@@ -48,4 +50,8 @@ public class Client {
      */
     @JacksonXmlProperty(localName = "forts_acc")
     private String fortsAccount;
+
+    public Client() {
+        this.kind = "client";
+    }
 }

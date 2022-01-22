@@ -5,9 +5,8 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.EqualsAndHashCode;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -17,11 +16,16 @@ import java.util.List;
  * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "messages")
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Messages {
+public class Messages extends Callback{
     @JacksonXmlProperty(localName = "message")
     @JacksonXmlElementWrapper(useWrapping = false)
     private List<Message> items;
+
+    public Messages() {
+        this.kind = "messages";
+    }
 
     /**
      * Текстовое сообщения

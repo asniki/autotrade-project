@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -16,11 +17,16 @@ import java.util.List;
  * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "pits")
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Pits {
+public class Pits extends Callback {
     @JacksonXmlProperty(localName = "pit")
     @JacksonXmlElementWrapper(useWrapping = false)
     private List<Pit> items;
+
+    public Pits() {
+        this.kind = "pits";
+    }
 
     /**
      * Параметры инструмента в режиме торгов

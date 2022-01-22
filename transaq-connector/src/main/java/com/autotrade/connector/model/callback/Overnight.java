@@ -3,7 +3,7 @@ package com.autotrade.connector.model.callback;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.EqualsAndHashCode;
 
 /**
  * Режим кредитования
@@ -12,9 +12,14 @@ import org.springframework.format.annotation.DateTimeFormat;
  * @deprecated
  */
 @JacksonXmlRootElement(localName = "overnight")
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Overnight {
+public class Overnight extends Callback {
     /** Ночной или дневной режим кредитования: true / false */
     @JacksonXmlProperty(isAttribute = true, localName = "status")
     private String status;
+
+    public Overnight() {
+        this.kind = "overnight";
+    }
 }

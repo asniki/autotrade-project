@@ -22,7 +22,7 @@ https://stackabuse.com/serialize-and-deserialize-xml-in-java-with-jackson/
 2. [x] disconnect (2)
    - server_status (2)
 
-3. [ ] server_status (3)
+3. [x] server_status (3)
    - server_status (2)
 
 4. [ ] subscribe (4)
@@ -68,7 +68,7 @@ https://stackabuse.com/serialize-and-deserialize-xml-in-java-with-jackson/
 18. [x] get_connector_version (18)
     - connector_version
 
-19. [ ] get_server_id (19)
+19. [x] get_server_id (19)
     - current_server
 
 20. [ ] get_securities_info (20)
@@ -93,7 +93,7 @@ https://stackabuse.com/serialize-and-deserialize-xml-in-java-with-jackson/
 27. [ ] get_cln_sec_permissions (27)
     - cln_sec_permissions (25)
 
-28. [ ] get_securities (28)
+28. [x] get_securities (28)
     - securities (6)
 
 29. [ ] get_old_news (29)

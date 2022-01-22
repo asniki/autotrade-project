@@ -5,12 +5,11 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Позиции клиента
@@ -18,8 +17,9 @@ import java.util.stream.Stream;
  * как асинхронный ответ на команду connect,
  */
 @JacksonXmlRootElement(localName = "positions")
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Positions {
+public class Positions extends Callback{
 
     /** Денежные позиции */
     @JacksonXmlProperty(localName = "money_position")
@@ -51,6 +51,9 @@ public class Positions {
     @JacksonXmlElementWrapper(useWrapping = false)
     private List<SpotLimit> spotLimit;
 
+    public Positions() {
+        this.kind = "positions";
+    }
 
     /**
      * Денежная позиция

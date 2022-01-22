@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -14,17 +15,23 @@ import java.util.List;
  * Список инструментов
  * Сообщение приходит:
  * как асинхронный ответ на команду connect,
+ * как асинхронный ответ на команду get_securities
  * @apiNote Массив инструментов выдается автоматически после успешного подключения к серверу
  * @apiNote Может быть также получен впоследствии по запросу get_securities
  * @apiNote Может приходить не единым блоком, а несколькими, а также в ходе сессии по мере подключения рынков,
  * и динамического получения доступа к отдельным инструментам
  */
 @JacksonXmlRootElement(localName = "securities")
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Securities {
+public class Securities extends Callback {
     @JacksonXmlProperty(localName = "security")
     @JacksonXmlElementWrapper(useWrapping = false)
     private List<Security> items;
+
+    public Securities() {
+        this.kind = "securities";
+    }
 
     /**
      * Инструмент

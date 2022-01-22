@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -12,11 +13,12 @@ import java.math.BigDecimal;
  * Обновление информации по инструменту
  * Сообщение приходит:
  * как асинхронный ответ на команду connect,
- * Элемент не приходит в колбеке, если соответствующее поле не пришло от сервера.
+ * Элемент не приходит в колбеке, если соответствующее поле не пришло от сервера
  */
 @JacksonXmlRootElement(localName = "sec_info_upd")
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class SecurityInfoUpdate {
+public class SecurityInfoUpdate extends Callback {
     /** Идентификатор бумаги */
     @JacksonXmlProperty(localName = "secid")
     private int securityId;
@@ -100,4 +102,8 @@ public class SecurityInfoUpdate {
     @JsonIgnore
     @Getter(lazy = true)
     private final BigDecimal maxPrice = (maxPriceHolder == null) ? null : new BigDecimal(maxPriceHolder);
+
+    public SecurityInfoUpdate() {
+        this.kind = "sec_info_upd";
+    }
 }
