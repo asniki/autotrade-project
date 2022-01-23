@@ -24,6 +24,8 @@ import lombok.NoArgsConstructor;
  * server_status
  * connector_version
  * current_server
+ * news_header
+ * news_body
  */
 @Data
 @NoArgsConstructor

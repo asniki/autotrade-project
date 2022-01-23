@@ -96,10 +96,10 @@ https://stackabuse.com/serialize-and-deserialize-xml-in-java-with-jackson/
 28. [x] get_securities (28)
     - securities (6)
 
-29. [ ] get_old_news (29)
+29. [x] get_old_news (29)
     - news_header
 
-30. [ ] get_news_body (30)
+30. [x] get_news_body (30)
     - news_body
 
 - marketord (16)

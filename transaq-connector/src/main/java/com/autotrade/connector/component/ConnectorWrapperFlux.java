@@ -124,6 +124,8 @@ public class ConnectorWrapperFlux {
         callbackTypes.put("server_status", ServerStatus.class);
         callbackTypes.put("connector_version", ConnectorVersion.class);
         callbackTypes.put("current_server", CurrentServer.class);
+        callbackTypes.put("news_header", NewsHeader.class);
+        callbackTypes.put("news_body", NewsBody.class);
 
         // мапа содержит списки подписчиков на потоки определенных по ключу объектов
         final Map<String, List<Consumer<? super Callback>>> callbackConsumers = new HashMap<>();
@@ -141,7 +143,9 @@ public class ConnectorWrapperFlux {
         callbackConsumers.put("messages", List.of(dataContext::onMessagesCallback));
         callbackConsumers.put("server_status", List.of(dataContext::onServerStatusCallback, c -> log.info("second server_status subscriber")));
         callbackConsumers.put("connector_version", List.of(dataContext::onConnectorVersionCallback));
-        callbackConsumers.put("current_server", List.of(dataContext::onCurrentServer));
+        callbackConsumers.put("current_server", List.of(dataContext::onCurrentServerCallback));
+        callbackConsumers.put("news_header", List.of(dataContext::onNewsHeaderCallback));
+        callbackConsumers.put("news_body", List.of(dataContext::onNewsBodyCallback));
 
         // через украденную ссылку handler колбек будет класть объекты в поток
         Flux<Callback> flux = Flux
@@ -453,5 +457,17 @@ public class ConnectorWrapperFlux {
     public TimeDifferenceResult getServTimeDifference() throws ConnectorWrapperException {
         GetServTimeDifference getServTimeDifference = new GetServTimeDifference();
         return sendCommand(getServTimeDifference, TimeDifferenceResult.class);
+    }
+
+    /** Command get_old_news */
+    public Result getOldNews(int count) throws ConnectorWrapperException {
+        GetOldNews getOldNews = new GetOldNews(count);
+        return sendCommand(getOldNews, Result.class);
+    }
+
+    /** Command get_news_body */
+    public Result getNewsBody(int id) throws ConnectorWrapperException {
+        GetNewsBody getNewsBody = new GetNewsBody(id);
+        return sendCommand(getNewsBody, Result.class);
     }
 }

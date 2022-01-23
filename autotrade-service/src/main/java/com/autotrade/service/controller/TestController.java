@@ -53,7 +53,18 @@ public class TestController {
             connectorFlux.getSecurities();
             connectorFlux.getServerId();
             connectorFlux.getMarkets();
-            Thread.sleep(1_000);
+            Thread.sleep(2_000);
+
+            connectorFlux.getOldNews(5);
+            Thread.sleep(2_000);
+            dataContext.getNewsHeaders().forEach(h -> {
+                try {
+                    connectorFlux.getNewsBody(h.getId());
+                } catch (ConnectorWrapperException e) {
+                    e.printStackTrace();
+                }
+            });
+            Thread.sleep(2_000);
 
             TimeDifferenceResult servTimeDifference = connectorFlux.getServTimeDifference();
             log.info("TimeDifference: "+ servTimeDifference.getTimeDifference());

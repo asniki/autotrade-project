@@ -72,6 +72,14 @@ public class DataContext {
     @Setter
     private volatile CurrentServer currentServer;
 
+    @Getter
+    @Setter
+    private List<NewsHeader> newsHeaders;
+
+    @Getter
+    @Setter
+    private List<NewsBody> newsBodies;
+
 
 
     public DataContext() {
@@ -83,6 +91,8 @@ public class DataContext {
         clients = Collections.synchronizedList(new ArrayList<>());
         markets = Collections.synchronizedList(new ArrayList<>());
         messages = Collections.synchronizedList(new ArrayList<>());
+        newsHeaders = Collections.synchronizedList(new ArrayList<>());
+        newsBodies = Collections.synchronizedList(new ArrayList<>());
     }
 
     public void reset() {
@@ -101,6 +111,8 @@ public class DataContext {
         clients.clear();
         markets.clear();
         messages.clear();
+        newsHeaders.clear();
+        newsBodies.clear();
     }
 
     public <T> void onErrorCallback(T data) {
@@ -184,8 +196,18 @@ public class DataContext {
         setConnectorVersion(newConnectorVersion);
     }
 
-    public <T> void onCurrentServer(T data) {
+    public <T> void onCurrentServerCallback(T data) {
         CurrentServer newCurrentServer = (CurrentServer) data;
         setCurrentServer(newCurrentServer);
+    }
+
+    public <T> void onNewsHeaderCallback(T data) {
+        NewsHeader newNewsHeader = (NewsHeader) data;
+        getNewsHeaders().add(newNewsHeader);
+    }
+
+    public <T> void onNewsBodyCallback(T data) {
+        NewsBody newNewsBody = (NewsBody) data;
+        getNewsBodies().add(newNewsBody);
     }
 }
