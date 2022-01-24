@@ -66,6 +66,13 @@ public class TestController {
             });
             Thread.sleep(2_000);
 
+            connectorFlux.getHistoryData("TQBR", "SBER", 1, 10, false);
+            Thread.sleep(1_000);
+            connectorFlux.getHistoryData("TQBR", "SBER", 1, 10, false);
+            Thread.sleep(1_000);
+            connectorFlux.getHistoryData("TQBR", "SBER", 1, 10, true);
+            Thread.sleep(1_000);
+
             TimeDifferenceResult servTimeDifference = connectorFlux.getServTimeDifference();
             log.info("TimeDifference: "+ servTimeDifference.getTimeDifference());
 

@@ -7,9 +7,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 // https://stackoverflow.com/questions/6916385/is-there-a-concurrent-list-in-javas-jdk
 @Component
@@ -80,6 +78,11 @@ public class DataContext {
     @Setter
     private List<NewsBody> newsBodies;
 
+    /** Map< securityCode, Map< period, List< Candles.Candle >>> */
+    @Getter
+    @Setter
+    private Map<String, Map<Integer, List<Candles.Candle>>> securityHistory;
+
 
 
     public DataContext() {
@@ -93,6 +96,7 @@ public class DataContext {
         messages = Collections.synchronizedList(new ArrayList<>());
         newsHeaders = Collections.synchronizedList(new ArrayList<>());
         newsBodies = Collections.synchronizedList(new ArrayList<>());
+        securityHistory = Collections.synchronizedMap(new HashMap<>());
     }
 
     public void reset() {
@@ -113,6 +117,7 @@ public class DataContext {
         messages.clear();
         newsHeaders.clear();
         newsBodies.clear();
+        securityHistory.clear();
     }
 
     public <T> void onErrorCallback(T data) {
@@ -209,5 +214,25 @@ public class DataContext {
     public <T> void onNewsBodyCallback(T data) {
         NewsBody newNewsBody = (NewsBody) data;
         getNewsBodies().add(newNewsBody);
+    }
+
+    public <T> void onCandlesCallback(T data) {
+        Candles newCandles = (Candles) data;
+        String securityCode = newCandles.getSecurityCode();
+        int period = newCandles.getPeriod();
+
+        log.info("[onCandlesCallback] get " + newCandles.getItems().size() + " candles for " + securityCode);
+
+        Map<String, Map<Integer, List<Candles.Candle>>> securityHistory = getSecurityHistory();
+        if(!securityHistory.containsKey(newCandles.getSecurityCode())) {
+            securityHistory.put(securityCode, new HashMap<>());
+        }
+        Map<Integer, List<Candles.Candle>> historyByPeriod = securityHistory.get(securityCode);
+
+        if(!historyByPeriod.containsKey(period)) {
+            historyByPeriod.put(period, new ArrayList<>());
+        }
+
+        historyByPeriod.get(period).addAll(newCandles.getItems());
     }
 }

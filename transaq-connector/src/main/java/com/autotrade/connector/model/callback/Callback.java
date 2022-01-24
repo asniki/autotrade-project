@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
  * current_server
  * news_header
  * news_body
+ * candles
  */
 @Data
 @NoArgsConstructor

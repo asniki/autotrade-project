@@ -1,9 +1,12 @@
 package com.autotrade.connector.model.callback;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.time.LocalDateTime;
 
 /**
  * Заголовок новости.
@@ -20,7 +23,8 @@ public class NewsHeader extends Callback {
 
     /** Дата-время новости (от источника) */
     @JacksonXmlProperty(localName = "timestamp")
-    private String timestamp;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
+    private LocalDateTime timestamp;
 
     /** Источник новости */
     @JacksonXmlProperty(localName = "source")

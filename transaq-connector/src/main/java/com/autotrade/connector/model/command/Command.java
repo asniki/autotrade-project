@@ -16,6 +16,7 @@ import lombok.Data;
  * get_servtime_difference
  * get_old_news
  * get_news_body
+ * gethistorydata
  */
 @Data
 public class Command {

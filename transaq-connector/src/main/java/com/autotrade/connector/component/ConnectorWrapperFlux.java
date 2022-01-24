@@ -126,6 +126,7 @@ public class ConnectorWrapperFlux {
         callbackTypes.put("current_server", CurrentServer.class);
         callbackTypes.put("news_header", NewsHeader.class);
         callbackTypes.put("news_body", NewsBody.class);
+        callbackTypes.put("candles", Candles.class);
 
         // мапа содержит списки подписчиков на потоки определенных по ключу объектов
         final Map<String, List<Consumer<? super Callback>>> callbackConsumers = new HashMap<>();
@@ -146,6 +147,7 @@ public class ConnectorWrapperFlux {
         callbackConsumers.put("current_server", List.of(dataContext::onCurrentServerCallback));
         callbackConsumers.put("news_header", List.of(dataContext::onNewsHeaderCallback));
         callbackConsumers.put("news_body", List.of(dataContext::onNewsBodyCallback));
+        callbackConsumers.put("candles", List.of(dataContext::onCandlesCallback));
 
         // через украденную ссылку handler колбек будет класть объекты в поток
         Flux<Callback> flux = Flux
@@ -469,5 +471,11 @@ public class ConnectorWrapperFlux {
     public Result getNewsBody(int id) throws ConnectorWrapperException {
         GetNewsBody getNewsBody = new GetNewsBody(id);
         return sendCommand(getNewsBody, Result.class);
+    }
+
+    /** Command gethistorydata */
+    public Result getHistoryData(String board, String securityCode, int period, int count, boolean reset) throws ConnectorWrapperException {
+        GetHistoryData getHistoryData = new GetHistoryData(board, securityCode, period, count, reset);
+        return sendCommand(getHistoryData, Result.class);
     }
 }
