@@ -20,6 +20,7 @@ import lombok.Data;
  * get_securities_info
  * subscribe
  * unsubscribe
+ * TODO get_client_limits
  */
 @Data
 public class Command {
