@@ -36,11 +36,11 @@ public class Securities extends Callback {
      */
     @Data
     public static class Security {
-        /** Внутренний код */
+        /** Идентификатор инструмента */
         @JacksonXmlProperty(isAttribute = true, localName = "secid")
         private int securityId;
 
-        /** true / false */
+        /** Является ли бумага торгуемой в обычном режиме: true / false */
         @JacksonXmlProperty(isAttribute = true, localName = "active")
         private String active;
 
@@ -60,7 +60,7 @@ public class Securities extends Callback {
         @JacksonXmlProperty(localName = "market")
         private int market;
 
-        /** Наименование бумаги */
+        /** Наименование инструмента */
         @JacksonXmlProperty(localName = "shortname")
         private String shortName;
 
@@ -98,7 +98,7 @@ public class Securities extends Callback {
         @JacksonXmlProperty(localName = "opmask")
         private OptionsMask optionsMask;
 
-        /** Тип бумаги */
+        /** Тип инструмента */
         @JacksonXmlProperty(localName = "sectype")
         private String securityType;
 

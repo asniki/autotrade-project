@@ -17,6 +17,9 @@ import lombok.Data;
  * get_old_news
  * get_news_body
  * gethistorydata
+ * get_securities_info
+ * subscribe
+ * unsubscribe
  */
 @Data
 public class Command {

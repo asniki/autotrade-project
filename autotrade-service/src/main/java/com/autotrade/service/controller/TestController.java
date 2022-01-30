@@ -2,8 +2,10 @@ package com.autotrade.service.controller;
 
 import com.autotrade.connector.component.ConnectorWrapperFlux;
 import com.autotrade.connector.component.DataContext;
+import com.autotrade.connector.component.Utils;
 import com.autotrade.connector.exception.ConnectorWrapperException;
 import com.autotrade.connector.model.callback.*;
+import com.autotrade.connector.model.response.Result;
 import com.autotrade.connector.model.response.TimeDifferenceResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,11 +35,28 @@ public class TestController {
     private final DataContext dataContext;
     private final ObjectMapper objectMapper;
 
-    public TestController(ConnectorWrapperFlux connectorWrapperFlux, DataContext dataContext, ObjectMapper objectMapper) {
+    private final Utils utils;
+
+    public TestController(ConnectorWrapperFlux connectorWrapperFlux, DataContext dataContext, ObjectMapper objectMapper, Utils utils) {
         this.connectorFlux = connectorWrapperFlux;
         this.dataContext = dataContext;
         this.objectMapper = objectMapper;
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+
+        this.utils = utils;
+//        SecurityInfo securityInfo = utils.deserializeCallbackFlux("<sec_info secid=\"2324\"><secname>ajksbdlkjabskjd</secname><seccode>SBER</seccode><market>1</market><facevalue>3.00</facevalue><point_cost>1</point_cost><isin>RU0009029540</isin><currencyid>RUB</currencyid></sec_info>",
+//                SecurityInfo.class);
+//
+//        log.info(securityInfo.getSecurityName());
+
+//        Map<String, List<String>> test = Map.of(
+//                "sdfs", List.of("shf fsgh fsg", "gh srth eag aeag ", "gfd sfgtjsfr aer a"),
+//                "sdfdass", List.of("shffsg", "srth eag aeag ", "gfd sfgsfr aer a"),
+//                "gsdfgsdfs", List.of("shf fsgh fsg", "gh srth eag aeag ", "gfd sfgtjsfr a"),
+//                "jfdsdfs", List.of("shf fsgdash fsg", "gh srth ea ag ", "gfd sfgtjsfr aer a")
+//        );
+//        log.info("f: " + test);
     }
 
     @SneakyThrows
@@ -55,23 +77,59 @@ public class TestController {
             connectorFlux.getMarkets();
             Thread.sleep(2_000);
 
-            connectorFlux.getOldNews(5);
-            Thread.sleep(2_000);
-            dataContext.getNewsHeaders().forEach(h -> {
-                try {
-                    connectorFlux.getNewsBody(h.getId());
-                } catch (ConnectorWrapperException e) {
-                    e.printStackTrace();
-                }
-            });
-            Thread.sleep(2_000);
+            // getOldNews
+//            connectorFlux.getOldNews(5);
+//            Thread.sleep(2_000);
+//            dataContext.getNewsHeaders().forEach(h -> {
+//                try {
+//                    connectorFlux.getNewsBody(h.getId());
+//                } catch (ConnectorWrapperException e) {
+//                    e.printStackTrace();
+//                }
+//            });
+//            Thread.sleep(2_000);
 
+            // getHistoryData
             connectorFlux.getHistoryData("TQBR", "SBER", 1, 10, false);
             Thread.sleep(1_000);
             connectorFlux.getHistoryData("TQBR", "SBER", 1, 10, false);
             Thread.sleep(1_000);
             connectorFlux.getHistoryData("TQBR", "SBER", 1, 10, true);
             Thread.sleep(1_000);
+
+            // getSecuritiesInfo
+            connectorFlux.getSecuritiesInfo(1, "SBER");
+            Thread.sleep(1_000);
+
+            List<Securities.Security> sberSecs = dataContext.getSecurities().stream().filter(s -> s.getSecurityCode().equals("SBER")).collect(Collectors.toList());
+//            log.info(objectMapper.writeValueAsString(sberSecs));
+            List<Securities.Security> sberFutSecs = dataContext.getSecurities().stream().filter(s ->
+                    s.getShortName().contains("SBRF") && s.getDefaultBoard().equals("FUT") && s.getSecurityCode().contains("SRH2")
+            ).collect(Collectors.toList());
+//            log.info(objectMapper.writeValueAsString(sberFutSecs));
+            List<Securities.Security> sberOptSecs = dataContext.getSecurities().stream().filter(s ->
+                    s.getShortName().contains("SBRF") && s.getDefaultBoard().equals("OPT")
+            ).collect(Collectors.toList());
+
+            connectorFlux.getSecuritiesInfo(sberFutSecs.get(0).getMarket(), sberFutSecs.get(0).getSecurityCode());
+            connectorFlux.getSecuritiesInfo(sberOptSecs.get(0).getMarket(), sberOptSecs.get(0).getSecurityCode());
+            Thread.sleep(1_000);
+
+            // subscribe
+            //TODO отладка
+            connectorFlux.subscribe("TQBR", "SBER");
+            Thread.sleep(1_000);
+            Quotations.Quotation quotation = dataContext.getQuotations().get(0);
+            BigDecimal open = quotation.getOpen();
+            for (int i = 0; i < 5; i++) {
+                Thread.sleep(1_000);
+            }
+
+            connectorFlux.unsubscribe("TQBR", "SBER");
+            Thread.sleep(1_000);
+            for (int i = 0; i < 5; i++) {
+                Thread.sleep(1_000);
+            }
 
             TimeDifferenceResult servTimeDifference = connectorFlux.getServTimeDifference();
             log.info("TimeDifference: "+ servTimeDifference.getTimeDifference());
@@ -90,12 +148,10 @@ public class TestController {
             Map<Integer, List<Securities.Security>> securitiesByMarket = dataContext.getSecurities().stream().collect(Collectors.groupingBy(Securities.Security::getMarket));
             Map<Integer, List<SecurityInfoUpdate>> securityInfoUpdatesByMarket = dataContext.getSecurityInfoUpdates().stream().collect(Collectors.groupingBy(SecurityInfoUpdate::getMarket));
 
-            //TODO выбрать из всех справочников SBER
+            // выбрать из всех справочников SBER
             List<Securities.Security> sberSecurities = dataContext.getSecurities().stream().filter(s -> s.getSecurityCode().equals("SBER")).collect(Collectors.toList());
             List<SecurityInfoUpdate> sberSecurityInfoUpdates = dataContext.getSecurityInfoUpdates().stream().filter(s -> s.getSecurityCode().equals("SBER")).collect(Collectors.toList());
             List<Pits.Pit> sberPits = dataContext.getPits().stream().filter(s -> s.getSecurityCode().equals("SBER")).collect(Collectors.toList());
-
-            //TODO get_securities_info (3.20) + sec_info (4.7)
 
 
             connectorFlux.disconnect();

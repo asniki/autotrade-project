@@ -25,14 +25,14 @@ https://stackabuse.com/serialize-and-deserialize-xml-in-java-with-jackson/
 3. [x] server_status (3)
    - server_status (2)
 
-4. [ ] subscribe (4)
+4. [x] subscribe (4)
    - quotations (9)
    - alltrades (10)
    - quotes (11)
 
-5. [ ] unsubscribe (5)
+5. [x] unsubscribe (5)
  
-6. [ ] get_history_data (6)
+6. [x] get_history_data (gethistorydata) (6)
    - candles (1)
 
 7. [ ] neworder (7)
@@ -71,7 +71,7 @@ https://stackabuse.com/serialize-and-deserialize-xml-in-java-with-jackson/
 19. [x] get_server_id (19)
     - current_server
 
-20. [ ] get_securities_info (20)
+20. [x] get_securities_info (20)
     - sec_info (7)
 
 21. [ ] moveorder (21)

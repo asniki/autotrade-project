@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SecurityInfoUpdate extends Callback {
-    /** Идентификатор бумаги */
+    /** Идентификатор инструмента */
     @JacksonXmlProperty(localName = "secid")
     private int securityId;
 

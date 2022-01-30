@@ -127,6 +127,11 @@ public class ConnectorWrapperFlux {
         callbackTypes.put("news_header", NewsHeader.class);
         callbackTypes.put("news_body", NewsBody.class);
         callbackTypes.put("candles", Candles.class);
+        callbackTypes.put("sec_info", SecurityInfo.class);
+        callbackTypes.put("quotations", Quotations.class);
+        callbackTypes.put("alltrades", AllTrades.class);
+        callbackTypes.put("quotes", Quotes.class);
+
 
         // мапа содержит списки подписчиков на потоки определенных по ключу объектов
         final Map<String, List<Consumer<? super Callback>>> callbackConsumers = new HashMap<>();
@@ -148,6 +153,10 @@ public class ConnectorWrapperFlux {
         callbackConsumers.put("news_header", List.of(dataContext::onNewsHeaderCallback));
         callbackConsumers.put("news_body", List.of(dataContext::onNewsBodyCallback));
         callbackConsumers.put("candles", List.of(dataContext::onCandlesCallback));
+        callbackConsumers.put("sec_info", List.of(dataContext::onSecurityInfo));
+        callbackConsumers.put("quotations", List.of(dataContext::onQuotations));
+        callbackConsumers.put("alltrades", List.of(dataContext::onAllTrades));
+        callbackConsumers.put("quotes", List.of(dataContext::onQuotes));
 
         // через украденную ссылку handler колбек будет класть объекты в поток
         Flux<Callback> flux = Flux
@@ -477,5 +486,27 @@ public class ConnectorWrapperFlux {
     public Result getHistoryData(String board, String securityCode, int period, int count, boolean reset) throws ConnectorWrapperException {
         GetHistoryData getHistoryData = new GetHistoryData(board, securityCode, period, count, reset);
         return sendCommand(getHistoryData, Result.class);
+    }
+
+    /** Command get_securities_info */
+    public Result getSecuritiesInfo(int market, String securityCode) throws ConnectorWrapperException {
+        GetSecuritiesInfo getSecuritiesInfo = new GetSecuritiesInfo(market, securityCode);
+        return sendCommand(getSecuritiesInfo, Result.class);
+    }
+
+    /** Command subscribe */
+    public Result subscribe(List<Subscribe.Security> allTrades, List<Subscribe.Security> quotations, List<Subscribe.Security> quotes) throws ConnectorWrapperException {
+        Subscribe subscribe = new Subscribe(allTrades, quotations, quotes);
+        return sendCommand(subscribe, Result.class);
+    }
+    public Result subscribe(String board, String securityCode) throws ConnectorWrapperException {
+        Subscribe subscribe = new Subscribe(board, securityCode);
+        return sendCommand(subscribe, Result.class);
+    }
+
+    /** Command subscribe */
+    public Result unsubscribe(String board, String securityCode) throws ConnectorWrapperException {
+        Unsubscribe unsubscribe = new Unsubscribe(board, securityCode);
+        return sendCommand(unsubscribe, Result.class);
     }
 }

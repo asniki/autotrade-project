@@ -16,8 +16,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
-import org.springframework.remoting.support.UrlBasedRemoteAccessor;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,11 +27,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.Properties;
 
 @Component
 @Slf4j

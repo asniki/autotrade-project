@@ -27,6 +27,10 @@ import lombok.NoArgsConstructor;
  * news_header
  * news_body
  * candles
+ * sec_info
+ * quotations
+ * alltrades
+ * quotes
  */
 @Data
 @NoArgsConstructor

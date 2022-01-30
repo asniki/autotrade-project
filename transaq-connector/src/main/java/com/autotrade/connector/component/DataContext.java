@@ -83,6 +83,21 @@ public class DataContext {
     @Setter
     private Map<String, Map<Integer, List<Candles.Candle>>> securityHistory;
 
+    @Getter
+    @Setter
+    private List<SecurityInfo> securityInfos;
+
+    @Getter
+    @Setter
+    private List<Quotations.Quotation> quotations;
+
+    @Getter
+    @Setter
+    private List<AllTrades.Trade> trades;
+
+    @Getter
+    @Setter
+    private List<List<Quotes.Quote>> quotesLists;
 
 
     public DataContext() {
@@ -97,6 +112,10 @@ public class DataContext {
         newsHeaders = Collections.synchronizedList(new ArrayList<>());
         newsBodies = Collections.synchronizedList(new ArrayList<>());
         securityHistory = Collections.synchronizedMap(new HashMap<>());
+        securityInfos = Collections.synchronizedList(new ArrayList<>());
+        quotations = Collections.synchronizedList(new ArrayList<>());
+        trades = Collections.synchronizedList(new ArrayList<>());
+        quotesLists = Collections.synchronizedList(new ArrayList<>());
     }
 
     public void reset() {
@@ -118,6 +137,10 @@ public class DataContext {
         newsHeaders.clear();
         newsBodies.clear();
         securityHistory.clear();
+        securityInfos.clear();
+        quotations.clear();
+        trades.clear();
+        quotesLists.clear();
     }
 
     public <T> void onErrorCallback(T data) {
@@ -234,5 +257,26 @@ public class DataContext {
         }
 
         historyByPeriod.get(period).addAll(newCandles.getItems());
+    }
+
+    public <T> void onSecurityInfo(T data) {
+        SecurityInfo newSecurityInfo = (SecurityInfo) data;
+        getSecurityInfos().add(newSecurityInfo);
+
+    }
+
+    public <T> void onQuotations(T data) {
+        Quotations newQuotations = (Quotations) data;
+        getQuotations().addAll(newQuotations.getItems());
+    }
+
+    public <T> void onAllTrades(T data) {
+        AllTrades newAllTrades = (AllTrades) data;
+        trades.addAll(newAllTrades.getItems());
+    }
+
+    public <T> void onQuotes(T data) {
+        Quotes newQuotes = (Quotes) data;
+        getQuotesLists().add(newQuotes.getItems());
     }
 }
