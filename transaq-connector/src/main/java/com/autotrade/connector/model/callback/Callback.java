@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
  * quotations
  * alltrades
  * quotes
- * TODO clientlimits
+ * TODO ticks
  */
 @Data
 @NoArgsConstructor
